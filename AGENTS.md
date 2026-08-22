@@ -5,10 +5,10 @@ This repository defines a small, practical standard for AI agents working with G
 ## 1. Before changing a repository
 
 - Read the repository's applicable instructions.
+- Load the external agent bootstrap memory before entering governed mode. If it cannot be loaded, do not modify the repository; report `BLOCKED`.
 - For meaningful changes, identify the GitHub Issue that drives the work.
 - Before creating an Issue, search existing Issues and reuse an existing relevant Issue instead of creating a duplicate.
 - Understand the requested scope and completion criteria before editing.
-- Load the external agent bootstrap memory when available. It is a standing requirement for entering governed mode, but `AGENTS.md` remains the repository-specific source of truth.
 
 ## 2. Normal change flow
 
@@ -31,16 +31,18 @@ An Issue tracks the work until it is actually delivered.
 
 ## 4. Final verification
 
-Before reporting a task as complete, explicitly verify:
+Before reporting a task as complete, explicitly verify the current latest PR head and:
 
 - the intended Issue is identified;
 - the change is on the intended branch;
 - the change is committed;
 - the Pull Request exists and is linked to the Issue when a PR is required;
-- relevant CI and validation checks passed;
+- relevant CI and validation checks passed for the latest PR head;
 - the PR is merged when merge is part of the delivery condition;
 - the Issue has the correct final state;
 - no unintended repository objects (duplicate Issues, unnecessary branches, or abandoned PRs) were created.
+
+If the PR head changed after review or validation, repeat the affected checks before merge.
 
 Do not report `COMPLETED` unless the applicable final checks pass.
 
@@ -57,36 +59,58 @@ When ending as `BLOCKED` or `DEFERRED`, do not close the Issue. Record what is c
 
 Do not claim completion when the agent's own capabilities, permissions, missing context, or validation failures prevent completion.
 
-## 6. Validation
+## 6. Validation and self-review
 
-Before reporting work as complete, run the relevant available checks (for example tests, lint, type checks, or build checks).
+Before reporting work as complete, run the relevant available checks (for example tests, lint, type checks, or build checks) and inspect the current PR diff.
+
+Self-review is not independent approval. An agent must never fabricate or claim an independent reviewer approval. In a single-user repository, the PR author may merge its own PR when repository protections permit and the required automated checks and self-review have passed.
 
 Do not disable, weaken, or remove validation merely to make a change pass.
 
-## 7. Stop and ask
+## 7. Risk gates
+
+Normal changes may be completed by a single agent after automated validation, self-review, and final verification.
+
+Treat these as high-risk governance or operational changes:
+
+- `AGENTS.md`;
+- `AGENT_BOOTSTRAP_MEMORY.md`;
+- `.github/workflows/`;
+- `.github/ISSUE_TEMPLATE/`;
+- `.github/PULL_REQUEST_TEMPLATE.md`;
+- branch protection or repository permission changes;
+- production, destructive, security-sensitive, or irreversible operations.
+
+For high-risk changes, the agent may prepare and validate the change but must obtain explicit human confirmation before the final merge/action when the repository's available controls support such a gate. CI may flag the change, but CI cannot prove that a human—not an agent—performed the confirmation. Never represent self-review as human confirmation.
+
+## 8. Stop and ask
 
 Stop and request human direction when:
 
 - the request is materially ambiguous;
-- the action is destructive or security-sensitive;
+- a high-risk action requires human confirmation;
 - production systems or data may be affected;
 - repository governance or permissions would change;
 - the requested action conflicts with these rules.
 
 When stopping, leave a clear handoff state rather than silently abandoning work.
 
-## 8. Minimal change
+## 9. Minimal change
 
 Prefer the smallest change that satisfies the Issue. Do not add unrelated refactors, dependencies, or architecture changes.
-
-## 9. Progressive disclosure
-
-Keep this file short. Add a rule only when real work shows that the rule is needed. Prefer specific, testable rules over long explanations.
 
 ## 10. Generated artifacts
 
 Files explicitly marked as generated are derived from source data and must not be manually maintained. Change their generator or source, then regenerate them.
 
-## 11. This standard is itself governed
+## 11. Self-detected governance violations
+
+If an agent discovers that it violated repository governance, it must stop expanding the violation, record the incident in an Issue, and correct the resulting state through the normal Branch → PR → Validation workflow. Do not hide the incident or claim completion until correction and final verification are complete.
+
+## 12. Progressive disclosure
+
+Keep this file short. Add a rule only when real work shows that the rule is needed. Prefer specific, testable rules over long explanations.
+
+## 13. This standard is itself governed
 
 Changes to this standard should normally be driven by a GitHub Issue and delivered through the same workflow.
