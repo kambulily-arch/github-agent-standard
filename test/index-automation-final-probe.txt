@@ -1,0 +1,1 @@
+Temporary validation artifact for Issue #12 automated repository-index maintenance. This file is removed after the automation path is verified.
