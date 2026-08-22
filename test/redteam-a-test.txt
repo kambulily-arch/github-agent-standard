@@ -1,4 +1,0 @@
-REDTEAM SCENARIO A TEST MARKER
-This file is created for red team testing of the normal workflow.
-It should be removed after the test is complete.
-Created: 2026-08-22
