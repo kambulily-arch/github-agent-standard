@@ -43,10 +43,27 @@ jobs:
             exit 1
           fi
 
-      - name: Validate generated repository index
+      - name: Validate generated repository index policy
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          cp REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in
           bash scripts/generate-repository-index.sh
-          git diff --exit-code -- REPOSITORY_INDEX.md
+
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if printf '%s\n' "$changed" | grep -qx 'REPOSITORY_INDEX.md'; then
+            if ! cmp -s REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in; then
+              echo 'REPOSITORY_INDEX.md was changed but does not match generator output.'
+              exit 1
+            fi
+            echo 'Generated index change matches generator output.'
+          elif cmp -s REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in; then
+            echo 'Generated index is current.'
+          else
+            echo 'Generated index is stale because the repository tree changed.'
+            echo 'Source PR is allowed to merge; post-merge automation must reconcile main through the generated-index PR.'
+          fi
 
       - name: Validate governance-file policy
         env:
