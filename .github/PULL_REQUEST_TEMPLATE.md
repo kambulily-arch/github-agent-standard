@@ -6,6 +6,11 @@ What Issue does this change address?
 
 - 
 
+## Completion
+
+- [ ] The linked Issue's completion criteria are satisfied
+- [ ] This PR uses `Closes #<issue>` when the Issue should close automatically after merge
+
 ## Validation
 
 - [ ] Relevant checks were run
