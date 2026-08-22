@@ -1,0 +1,16 @@
+name: Validate standard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required files
+        run: |
+          test -f AGENTS.md
+          test -f .github/PULL_REQUEST_TEMPLATE.md
+          test -f .github/ISSUE_TEMPLATE/agent-change.md
