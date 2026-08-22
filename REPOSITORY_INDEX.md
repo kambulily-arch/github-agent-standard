@@ -12,6 +12,7 @@
 - `GOVERNANCE.md`
 - `README.md`
 - `scripts`
+- `test`
 
 ## Important rule
 
