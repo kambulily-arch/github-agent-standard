@@ -1,0 +1,4 @@
+REDTEAM SCENARIO G: PR head modified after self-review
+This file was added after the initial self-review to test that
+previous validation results are invalidated and re-verification
+is required on the new head commit.
