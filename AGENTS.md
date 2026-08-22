@@ -39,6 +39,7 @@ Before reporting a task as complete, explicitly verify:
 - the Pull Request exists and is linked to the Issue when a PR is required;
 - relevant validation and required CI checks passed for the latest PR head;
 - a required check that is missing, pending indefinitely, not triggered, inaccessible, or otherwise unknown is not treated as passed;
+- the repository's `governance-required` check contains durable verification evidence tied to the exact PR HEAD;
 - the PR is merged when merge is part of the delivery condition;
 - the Issue has the correct final state;
 - no unintended repository objects (duplicate Issues, unnecessary branches, or abandoned PRs) were created.
@@ -76,13 +77,17 @@ Treat these as high-risk governance or operational changes:
 
 - `AGENTS.md`;
 - `AGENT_BOOTSTRAP_MEMORY.md`;
+- `GOVERNANCE.md`;
 - `.github/workflows/`;
 - `.github/ISSUE_TEMPLATE/`;
 - `.github/PULL_REQUEST_TEMPLATE.md`;
+- `scripts/generate-repository-index.sh`;
 - branch protection or repository permission changes;
 - production, destructive, security-sensitive, or irreversible operations.
 
-For high-risk changes, the agent may prepare and validate the change but must obtain explicit human confirmation before the final merge/action. CI may flag the change, but CI cannot prove that a human—not an agent—performed the confirmation. Never represent self-review as human confirmation.
+For high-risk changes, the agent may prepare and validate the change but must obtain explicit human confirmation before the final merge/action. The repository implements this confirmation through the GitHub Actions environment `governance-human-confirmation`, configured with the repository owner as a required reviewer. For this single-user repository, `Prevent self-review` must remain disabled so the owner can approve the workflow job from the GitHub UI without creating a reviewer deadlock. The agent must not approve that environment job itself. If the environment is missing, unprotected, or its reviewer configuration cannot be verified, stop as `BLOCKED`.
+
+CI may verify that the environment approval gate completed, but an agent must never represent its own self-review as human confirmation.
 
 ## 8. Stop and ask
 
