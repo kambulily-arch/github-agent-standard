@@ -63,7 +63,17 @@ Before reporting work as complete, run the relevant available checks (for exampl
 
 Do not disable, weaken, or remove validation merely to make a change pass.
 
-## 7. Stop and ask
+## 7. Review and solo-maintainer policy
+
+Independent review is preferred when another qualified reviewer is available, but a repository must remain operable when there is only one maintainer.
+
+- A PR author must never pretend to provide an independent approval of their own PR.
+- If there is no independent reviewer, the agent may merge its own PR only when all required automated checks pass, the change is within the Issue scope, the Final Verification checklist passes, and the change is not in a high-risk category.
+- High-risk changes require explicit human confirmation before merge, even for a solo maintainer. High-risk includes destructive data changes, production-impacting changes, credential/permission/security changes, irreversible migrations, and changes that weaken or bypass governance controls.
+- When explicit human confirmation is required but not yet provided, leave the PR open and record `BLOCKED: waiting for human confirmation`.
+- Self-review is verification, not independent approval, and must be described accurately in the PR history.
+
+## 8. Stop and ask
 
 Stop and request human direction when:
 
@@ -75,7 +85,7 @@ Stop and request human direction when:
 
 When stopping, leave a clear handoff state rather than silently abandoning work.
 
-## 8. Self-detected governance violations
+## 9. Self-detected governance violations
 
 If an agent discovers that it has violated these rules:
 
@@ -88,18 +98,18 @@ If an agent discovers that it has violated these rules:
 
 A governance violation is an operational event to learn from, not a reason to bypass the workflow again.
 
-## 9. Minimal change
+## 10. Minimal change
 
 Prefer the smallest change that satisfies the Issue. Do not add unrelated refactors, dependencies, or architecture changes.
 
-## 10. Progressive disclosure
+## 11. Progressive disclosure
 
 Keep this file short. Add a rule only when real work shows that the rule is needed. Prefer specific, testable rules over long explanations.
 
-## 11. Generated artifacts
+## 12. Generated artifacts
 
 Files explicitly marked as generated are derived from source data and must not be manually maintained. Change their generator or source, then regenerate them.
 
-## 12. This standard is itself governed
+## 13. This standard is itself governed
 
 Changes to this standard should normally be driven by a GitHub Issue and delivered through the same workflow.
