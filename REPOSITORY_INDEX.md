@@ -10,6 +10,7 @@
 - `AGENTS.md`
 - `AGENT_BOOTSTRAP_MEMORY.md`
 - `GOVERNANCE.md`
+- `README.md`
 - `scripts`
 
 ## Important rule

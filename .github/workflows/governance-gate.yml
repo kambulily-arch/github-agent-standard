@@ -48,19 +48,6 @@ jobs:
           bash scripts/generate-repository-index.sh
           git diff --exit-code -- REPOSITORY_INDEX.md
 
-      - name: Protect generated index changes
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
-          if printf '%s\n' "$changed" | grep -qx 'REPOSITORY_INDEX.md'; then
-            if ! printf '%s\n' "$changed" | grep -qx 'scripts/generate-repository-index.sh'; then
-              echo 'REPOSITORY_INDEX.md is generated. Change its generator instead.'
-              exit 1
-            fi
-          fi
-
       - name: Validate governance-file policy
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}

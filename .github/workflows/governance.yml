@@ -37,18 +37,16 @@ jobs:
             exit 1
           fi
 
-      - name: Protect generated index
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      - name: Validate generated index
         run: |
-          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
-          if printf '%s\n' "$changed" | grep -qx 'REPOSITORY_INDEX.md'; then
-            if ! printf '%s\n' "$changed" | grep -qx 'scripts/generate-repository-index.sh'; then
-              echo 'REPOSITORY_INDEX.md is generated. Change its generator instead.'
-              exit 1
-            fi
+          cp REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in
+          bash ./scripts/generate-repository-index.sh
+          if ! cmp -s REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in; then
+            echo 'REPOSITORY_INDEX.md is out of date.'
+            echo 'Run scripts/generate-repository-index.sh and commit the generated result.'
+            exit 1
           fi
+          echo 'REPOSITORY_INDEX.md matches the generator output.'
 
       - name: Flag governance changes
         env:
