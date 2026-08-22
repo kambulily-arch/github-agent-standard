@@ -1,4 +1,0 @@
-REDTEAM SCENARIO C: direct main modification test
-This file was created directly on main to test whether branch protection
-prevents direct modifications. This is a governance violation and should
-be detected and cleaned up.
