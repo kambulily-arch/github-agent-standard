@@ -1,0 +1,21 @@
+name: Validate repository index
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generated-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild index
+        run: bash scripts/generate-repository-index.sh
+
+      - name: Require generated index to be current
+        run: git diff --exit-code -- REPOSITORY_INDEX.md

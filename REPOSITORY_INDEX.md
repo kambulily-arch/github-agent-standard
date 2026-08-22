@@ -2,17 +2,16 @@
 
 # Repository Index
 
-> Generated automatically by the repository governance workflow.
+> Generated automatically from the repository tree.
 
 ## Top-level structure
 
-- `AGENT_BOOTSTRAP_MEMORY.md` — external agent bootstrap memory.
-- `AGENTS.md` — repository operating rules.
-- `GOVERNANCE.md` — concise governance overview.
-- `REPOSITORY_INDEX.md` — generated repository structure index.
-- `.github/` — GitHub templates and workflows.
-- `scripts/` — repository automation scripts.
+- `.github`
+- `AGENTS.md`
+- `AGENT_BOOTSTRAP_MEMORY.md`
+- `GOVERNANCE.md`
+- `scripts`
 
 ## Important rule
 
-This file is generated. Modify the generator, not this file.
+This file is generated. Modify the generator or repository source, not this file.
