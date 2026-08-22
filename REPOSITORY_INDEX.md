@@ -2,16 +2,16 @@
 
 # Repository Index
 
-> Generated automatically by the repository governance workflow.
+> Generated automatically from the repository tree.
 
 ## Top-level structure
 
-- `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github`
 - `AGENTS.md`
 - `AGENT_BOOTSTRAP_MEMORY.md`
 - `GOVERNANCE.md`
-- `scripts/generate-repository-index.sh`
+- `scripts`
 
 ## Important rule
 
-This file is generated. Modify the generator, not this file.
+This file is generated. Modify the generator or repository source, not this file.
