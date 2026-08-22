@@ -1,0 +1,15 @@
+name: Redteam CI Failure Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  intentional-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Intentional failure for red team test
+        run: |
+          echo "This is an intentional failure for red team scenario E."
+          echo "It should be removed after testing."
+          exit 1
