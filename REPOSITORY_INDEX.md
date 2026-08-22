@@ -15,3 +15,5 @@
 ## Important rule
 
 This file is generated. Modify the generator or repository source, not this file.
+
+<!-- REDTEAM FAILURE TEST: intentional manual modification -->
