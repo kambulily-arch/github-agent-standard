@@ -1,0 +1,33 @@
+name: Generate repository index
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate index
+        run: bash scripts/generate-repository-index.sh
+
+      - name: Commit generated index
+        run: |
+          if git diff --quiet -- REPOSITORY_INDEX.md; then
+            echo "Repository index is already current."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add REPOSITORY_INDEX.md
+          git commit -m "chore: update generated repository index"
+          git push
