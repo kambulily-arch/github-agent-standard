@@ -1,0 +1,72 @@
+name: Governance gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  governance-required:
+    name: governance-required
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate required repository files
+        run: |
+          test -f AGENTS.md
+          test -f AGENT_BOOTSTRAP_MEMORY.md
+          test -f .github/PULL_REQUEST_TEMPLATE.md
+          test -f .github/ISSUE_TEMPLATE/agent-change.md
+          test -f scripts/generate-repository-index.sh
+
+      - name: Validate branch policy and Issue reference
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [ "$BASE_REF" = "main" ] && [ "$HEAD_REF" = "main" ]; then
+            echo 'Normal changes must not use main as the PR head.'
+            exit 1
+          fi
+
+          if ! printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" | grep -Eiq '(#|closes |fixes |resolves )[0-9]+'; then
+            echo 'PR must reference a GitHub Issue.'
+            exit 1
+          fi
+
+      - name: Validate generated repository index
+        run: |
+          bash scripts/generate-repository-index.sh
+          git diff --exit-code -- REPOSITORY_INDEX.md
+
+      - name: Protect generated index changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if printf '%s\n' "$changed" | grep -qx 'REPOSITORY_INDEX.md'; then
+            if ! printf '%s\n' "$changed" | grep -qx 'scripts/generate-repository-index.sh'; then
+              echo 'REPOSITORY_INDEX.md is generated. Change its generator instead.'
+              exit 1
+            fi
+          fi
+
+      - name: Validate governance-file policy
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if printf '%s\n' "$changed" | grep -Eq '^(AGENTS\.md|AGENT_BOOTSTRAP_MEMORY\.md|\.github/workflows/|\.github/ISSUE_TEMPLATE/|\.github/PULL_REQUEST_TEMPLATE\.md)'; then
+            echo 'Governance files changed: human confirmation is required before merge.'
+          fi
