@@ -50,13 +50,13 @@ jobs:
             fi
           fi
 
-      - name: Protect governance files from ordinary changes
+      - name: Flag governance changes
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
-          if printf '%s\n' "$changed" | grep -E '^(AGENTS\.md|AGENT_BOOTSTRAP_MEMORY\.md|\.github/workflows/|\.github/ISSUE_TEMPLATE/|\.github/PULL_REQUEST_TEMPLATE\.md)$' >/dev/null; then
-            echo 'Governance files changed; this is a high-risk governance change and requires human confirmation before merge.'
-            echo 'CI cannot prove a human performed the confirmation; repository settings should enforce the desired approval/environment policy.'
+          if printf '%s\n' "$changed" | grep -Eq '^(AGENTS\.md|AGENT_BOOTSTRAP_MEMORY\.md|\.github/workflows/|\.github/ISSUE_TEMPLATE/|\.github/PULL_REQUEST_TEMPLATE\.md)'; then
+            echo 'Governance files changed: this is a high-risk governance change and requires human confirmation before merge.'
+            echo 'CI cannot prove that a human performed the confirmation; repository settings should enforce the desired approval or environment policy.'
           fi
