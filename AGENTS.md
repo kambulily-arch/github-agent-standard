@@ -8,6 +8,7 @@ This repository defines a small, practical standard for AI agents working with G
 - For meaningful changes, identify the GitHub Issue that drives the work.
 - Before creating an Issue, search existing Issues and reuse an existing relevant Issue instead of creating a duplicate.
 - Understand the requested scope and completion criteria before editing.
+- Load the external agent bootstrap memory when available. It is a standing requirement for entering governed mode, but `AGENTS.md` remains the repository-specific source of truth.
 
 ## 2. Normal change flow
 
