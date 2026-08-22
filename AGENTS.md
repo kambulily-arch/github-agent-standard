@@ -75,18 +75,31 @@ Stop and request human direction when:
 
 When stopping, leave a clear handoff state rather than silently abandoning work.
 
-## 8. Minimal change
+## 8. Self-detected governance violations
+
+If an agent discovers that it has violated these rules:
+
+1. Stop the violating line of work; do not compound the violation.
+2. Record the violation in a dedicated GitHub Issue, unless an existing incident Issue already covers the same event.
+3. State what happened, what repository state may be affected, and what correction is required.
+4. Correct the state through the normal branch/PR workflow whenever a correction is required.
+5. Do not hide, rewrite, or silently erase the incident merely to make the repository appear clean.
+6. Perform Final Verification before marking the incident correction complete.
+
+A governance violation is an operational event to learn from, not a reason to bypass the workflow again.
+
+## 9. Minimal change
 
 Prefer the smallest change that satisfies the Issue. Do not add unrelated refactors, dependencies, or architecture changes.
 
-## 9. Progressive disclosure
+## 10. Progressive disclosure
 
 Keep this file short. Add a rule only when real work shows that the rule is needed. Prefer specific, testable rules over long explanations.
 
-## 10. Generated artifacts
+## 11. Generated artifacts
 
 Files explicitly marked as generated are derived from source data and must not be manually maintained. Change their generator or source, then regenerate them.
 
-## 11. This standard is itself governed
+## 12. This standard is itself governed
 
 Changes to this standard should normally be driven by a GitHub Issue and delivered through the same workflow.
