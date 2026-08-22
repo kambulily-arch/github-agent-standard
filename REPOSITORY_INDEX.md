@@ -11,6 +11,7 @@
 - `AGENT_BOOTSTRAP_MEMORY.md`
 - `GOVERNANCE.md`
 - `README.md`
+- `docs`
 - `scripts`
 - `test`
 
