@@ -101,9 +101,13 @@ When stopping, leave a clear handoff state rather than silently abandoning work.
 
 Prefer the smallest change that satisfies the Issue. Do not add unrelated refactors, dependencies, or architecture changes.
 
-## 10. Generated artifacts
+## 10. Generated repository index
 
-Files explicitly marked as generated are derived from source data and must not be manually maintained. Change their generator or source, then regenerate them. Automation must be able to reproduce the committed generated output deterministically.
+`REPOSITORY_INDEX.md` is a machine-generated map of the repository's top-level structure. Agents and humans must not edit it manually. The generator is `scripts/generate-repository-index.sh`.
+
+GitHub Actions maintains the committed index: after changes reach `main`, the workflow regenerates the index and, when needed, updates a dedicated automation branch and opens or updates a pull request. The automation branch is intentionally separate from `main`, so branch protection remains effective. The generated-index PR must pass normal CI and be merged through the normal pull-request flow.
+
+The generator output is the authority for the index. If the committed index differs from the generator output, the repository is not in a valid completed state.
 
 ## 11. Self-detected governance violations
 
