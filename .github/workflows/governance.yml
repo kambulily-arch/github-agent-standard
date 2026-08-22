@@ -40,7 +40,7 @@ jobs:
       - name: Validate generated index
         run: |
           cp REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in
-          ./scripts/generate-repository-index.sh
+          bash ./scripts/generate-repository-index.sh
           if ! cmp -s REPOSITORY_INDEX.md /tmp/REPOSITORY_INDEX.md.checked-in; then
             echo 'REPOSITORY_INDEX.md is out of date.'
             echo 'Run scripts/generate-repository-index.sh and commit the generated result.'
