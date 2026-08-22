@@ -26,20 +26,51 @@ jobs:
           test -f .github/ISSUE_TEMPLATE/agent-change.md
           test -f scripts/generate-repository-index.sh
 
-      - name: Validate branch policy and Issue reference
+      - name: Validate branch policy and real Issue reference
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           if [ "$BASE_REF" = "main" ] && [ "$HEAD_REF" = "main" ]; then
             echo 'Normal changes must not use main as the PR head.'
             exit 1
           fi
 
-          if ! printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" | grep -Eiq '(#|closes |fixes |resolves )[0-9]+'; then
+          refs=$(printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" | grep -Eio '(#|closes |fixes |resolves )[0-9]+' | grep -Eo '[0-9]+' | sort -u || true)
+          if [ -z "$refs" ]; then
             echo 'PR must reference a GitHub Issue.'
+            exit 1
+          fi
+
+          valid_issue=false
+          for number in $refs; do
+            response=$(curl --fail --silent --show-error \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$REPOSITORY/issues/$number") || {
+                echo "Unable to verify Issue #$number."
+                exit 1
+              }
+
+            if jq -e 'has("pull_request")' >/dev/null <<<"$response"; then
+              echo "Reference #$number is a pull request, not a work Issue."
+              continue
+            fi
+
+            state=$(jq -r '.state // empty' <<<"$response")
+            if [ "$state" = "open" ]; then
+              valid_issue=true
+              echo "Verified open Issue #$number."
+              break
+            fi
+          done
+
+          if [ "$valid_issue" != true ]; then
+            echo 'No valid open GitHub Issue was referenced by this PR.'
             exit 1
           fi
 
@@ -61,12 +92,60 @@ jobs:
             fi
           fi
 
-      - name: Validate governance-file policy
+      - name: Require independent human review for governance changes
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
-          if printf '%s\n' "$changed" | grep -Eq '^(AGENTS\.md|AGENT_BOOTSTRAP_MEMORY\.md|\.github/workflows/|\.github/ISSUE_TEMPLATE/|\.github/PULL_REQUEST_TEMPLATE\.md)'; then
-            echo 'Governance files changed: human confirmation is required before merge.'
+          if ! printf '%s\n' "$changed" | grep -Eq '^(AGENTS\.md|AGENT_BOOTSTRAP_MEMORY\.md|GOVERNANCE\.md|\.github/workflows/|\.github/ISSUE_TEMPLATE/|\.github/PULL_REQUEST_TEMPLATE\.md|scripts/generate-repository-index\.sh)$'; then
+            echo 'No governance-critical files changed.'
+            exit 0
           fi
+
+          echo 'Governance-critical files changed; an independent human review is required.'
+          reviews=$(curl --fail --silent --show-error \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$REPOSITORY/pulls/$PR_NUMBER/reviews?per_page=100") || {
+              echo 'Unable to verify pull request reviews.'
+              exit 1
+            }
+
+          approved=false
+          while IFS=$'\t' read -r login commit state; do
+            if [ "$state" = "APPROVED" ] && [ "$login" != "$PR_AUTHOR" ] && [ "$commit" = "$HEAD_SHA" ]; then
+              approved=true
+              echo "Independent approval verified from @$login on current HEAD."
+              break
+            fi
+          done < <(jq -r '.[] | [.user.login, .commit_id, .state] | @tsv' <<<"$reviews")
+
+          if [ "$approved" != true ]; then
+            echo 'FAIL: governance changes require an APPROVED review from someone other than the PR author on the current HEAD.'
+            exit 1
+          fi
+
+      - name: Final verification evidence
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          {
+            echo '## Governance Final Verification'
+            echo
+            echo "- PR: #$PR_NUMBER"
+            echo "- PR author: @$PR_AUTHOR"
+            echo "- Base SHA: \`$BASE_SHA\`"
+            echo "- Verified HEAD SHA: \`$HEAD_SHA\`"
+            echo '- Issue reference: verified against the GitHub Issues API'
+            echo '- Generated index: regenerated and compared with repository state'
+            echo '- Governance policy: evaluated against the final PR HEAD'
+            echo '- Merge authority: GitHub Ruleset required check'
+          } >> "$GITHUB_STEP_SUMMARY"
