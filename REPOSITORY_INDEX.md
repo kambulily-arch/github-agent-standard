@@ -6,12 +6,11 @@
 
 ## Top-level structure
 
-- `AGENT_BOOTSTRAP_MEMORY.md` — external agent bootstrap memory.
-- `AGENTS.md` — repository operating rules.
-- `GOVERNANCE.md` — concise governance overview.
-- `REPOSITORY_INDEX.md` — generated repository structure index.
-- `.github/` — GitHub templates and workflows.
-- `scripts/` — repository automation scripts.
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `AGENTS.md`
+- `AGENT_BOOTSTRAP_MEMORY.md`
+- `GOVERNANCE.md`
+- `scripts/generate-repository-index.sh`
 
 ## Important rule
 
